@@ -1,77 +1,113 @@
 d3.select('#chart-area')
 .append("h1")
 .attr("id", "title")
-.text("United States GDP")
+.text("Doping in Professional Bicycle Racing")
 
 
-fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json')
+fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json')
   .then(response => response.json())
   .then(data => {
-    document.getElementById('chart-area').value = JSON.stringify(data);
-    const dataSet = data.data;
+   document.getElementById("chart-area").value = JSON.stringify(data);
+    const dataSet = data
     
-
-    const w = 1200;
+    const w = 1150;
     const h = 600;
     const padding = 60;
 
     const xScale = d3.scaleTime()
-                     .domain([d3.min(dataSet, (d) => new Date(d[0])), d3.max(dataSet, (d) => new Date(d[0]))])
+                     .domain([d3.min(dataSet, (d) => new Date(d.Year - 1, 0)), d3.max(dataSet, (d) => new Date(d.Year + 1, 0))])
                      .range([padding, w - padding]);
 
-    const yScale = d3.scaleLinear()
-                     .domain([0, d3.max(dataSet, (d) => d[1])])
-                     .range([h - padding, padding]);
+    const yScale = d3.scaleTime()
+                     .domain(d3.extent(dataSet, (d) => new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1])))
+                     .range([padding, h - padding]);
 
-    const svg = d3.select("#chart-area")
-                  .append("svg")
-                  .attr("width", w)
-                  .attr("height", h);
-
+    
     d3.select("#chart-area")
         .append("h2")
         .attr("id", "label")
-        .text("Gross Domestic Product")
+        .text("Time in minutes")
 
-    const tooltip = d3.select("#chart-area")
-                    .append("tooltip")
-                    .attr("id", "tooltip")
+   const tooltip = d3.select("#chart-area")
+        .append("tooltip")
+        .attr("id", "tooltip")
 
-      const quarter = dataSet.map(item => item[0].slice(5,7) === "01" ? "Q1" : item[0].slice(5,7) === "04" ? "Q2" : item[0].slice(5,7) === "07" ? "Q3" : "Q4")
+   const legend = d3.select("#chart-area")
+        .append("div")
+        .attr("id", "legend")
+   
+   const legendRow1 = legend.append("div").attr("id", "legend-row1")
+   
+   legendRow1.append("p")
+   .text("No doping allegations")
 
-      svg.selectAll("rect")
+   const firstsvg = legendRow1.append("svg")
+               .attr("witdh", "30")
+               .attr("height", "30")
+
+   const legendRow2 = legend.append("div").attr("id", "legend-row2")
+
+   legendRow2.append("p")
+   .text("Riders with doping allegations")
+
+   const secondsvg = legendRow2.append("svg")
+               .attr("witdh", "30")
+               .attr("height", "30")
+
+   firstsvg.append("rect")
+   .attr("x", 10)
+   .attr("width", 30)
+   .attr("height", 30)
+   .attr("fill",  "#39b4f3")
+   .style("opacity", "0.8")
+
+   secondsvg.append("rect")
+   .attr("x", 10)
+   .attr("width", 30)
+   .attr("height", 30)
+   .attr("fill", "#625ed7")
+   .style("opacity", "0.8")
+        
+
+   const svg = d3.select("#chart-area")
+                  .append("svg")
+                  .attr("width", w)
+                  .attr("height", h)
+                  .style("margin-left", "3rem")
+   
+      svg.selectAll("circle")
          .data(dataSet)
          .enter()
-         .append("rect")
-         .attr("data-date", (d) => d[0])
-         .attr("data-gdp", (d) => d[1])
-         .attr("class", "bar")
-         .attr("x", (d, i) => xScale(new Date(dataSet[i][0])))
-         .attr("y",(d) => yScale(d[1]))
+         .append("circle")
+         .attr("data-xvalue", (d) => d.Year)
+         .attr("data-yvalue", (d) => new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1]))
+         .attr("class", "dot")
+         .attr("cx", (d) => xScale(new Date(d.Year, 0)))
+         .attr("cy",(d) => yScale(new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1])))
+         .attr("r", "7")
          .attr("index", (d, i) => i)
-         .attr("width", w/dataSet.length)
-         .attr("height", (d) => (h - padding) - yScale(d[1]))
-         .attr("fill", "#39b4f3")
-         .attr("stroke", "#e5e7ed")
-         .attr("stroke-width", "1px")
+         .attr("fill", (d) => d.Doping ? "#625ed7" : "#39b4f3")
+         .style("opacity", "0.8")
+         .style("stroke", "white")
          .on("mouseover", function () {
             let i = this.getAttribute("index")
-            tooltip.attr("data-date", dataSet[i][0])
-                  .style("opacity", "0.8")
-                  .html(dataSet[i][0].slice(0,4) + " " + quarter[i]  + '<br>' + "$" + dataSet[i][1].toFixed(1).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') + " Billion")
-                  .style("left", this.getAttribute("x") + "px")
-                  .style("margin-left", "3rem")
-                  .style("top", "27rem")
-               
+            tooltip.attr("data-year", dataSet[i].Year)
+         .style("opacity", "0.8")
+         .html(dataSet[i].Name + ": " + dataSet[i].Nationality + '<br>' + "Year: " + dataSet[i].Year + ", " + "Time: " + dataSet[i].Time + (dataSet[i].Doping ? '<br><br>' + dataSet[i].Doping: ""))
+         .style("left", this.getAttribute("cx") + "px")
+         .style("top", this.getAttribute("cy") + "px")
+         .style("margin-left", "8rem")
+         
+      
          })
          .on("mouseout", function () {
-            let i = this.getAttribute("index")
             tooltip.style("opacity", "0")            
          })
          
          
-      const xAxis = d3.axisBottom(xScale);
-    // Add your code below this line
+         
+   const xAxis = d3.axisBottom(xScale);
+   
 
     svg.append("g")
        .attr("transform", "translate(0," + (h - padding) + ")")
@@ -82,8 +118,8 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
        .call(xAxis);
 
 
-    const yAxis = d3.axisLeft(yScale);
-    // Add your code above this line
+   const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat('%M:%S'));
+   
 
     svg.append("g")
        .attr("transform", "translate(" + padding + ",0)")
