@@ -1,0 +1,76 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+body {
+    height: 100vh;
+    background-color: #bbc3ce;
+    font-family: 'Amiri Quran', serif;
+}
+
+#chart-area {
+    width: 80%;
+    height: 90%;
+    background-color: #e5e7ed;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    margin: auto;
+    box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#title {
+    position: absolute;
+    left: 50%;
+    top: 1rem;
+    transform: translate(-50%);
+    font-size: 3.5rem;
+    color: #474862;
+}
+
+.bar:hover {
+    fill: #625ed7;
+
+}
+
+#label {
+    position: absolute;
+    transform: rotate(270deg);
+    left: 0rem;
+    top: 15rem;
+    font-size: 1.3rem;
+    font-weight: 100;
+    color: #474862;
+
+}
+
+#tooltip {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    text-align: center;
+    width: 10rem;
+    height: 4rem;
+    background: #625ed7;
+    font-size: 1.1rem;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    border-radius: 2px;
+    pointer-events: none;
+    line-height: 1.5rem;
+    padding-top: 0.2rem;
+    color: #e5e7ed;
+    transition: 0.3s ease-in;
+    opacity: 0;
+  }
+
+
+  
