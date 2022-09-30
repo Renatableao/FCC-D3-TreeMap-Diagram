@@ -1,73 +1,73 @@
 d3.select('#chart-area')
 .append("h1")
 .attr("id", "title")
-.text("Doping in Professional Bicycle Racing")
+.text("Monthly Global Land-Surface Temperature")
 
+d3.select('#chart-area')
+.append("h2")
+.attr("id", "description")
+.text("1753 - 2015: base temperature 8.66℃")
 
-fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json')
+fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then(response => response.json())
   .then(data => {
    document.getElementById("chart-area").value = JSON.stringify(data);
-    const dataSet = data
+    const dataAll = data
+    const dataSet = dataAll.monthlyVariance
     
-    const w = 1150;
+    const w = 1450;
     const h = 600;
     const padding = 60;
 
-    const xScale = d3.scaleTime()
-                     .domain([d3.min(dataSet, (d) => new Date(d.Year - 1, 0)), d3.max(dataSet, (d) => new Date(d.Year + 1, 0))])
-                     .range([padding, w - padding]);
+    const xScale = d3.scaleBand()
+                     .domain(dataSet.map((d) => d.year))
+                     .rangeRound([padding, w - padding]);
 
-    const yScale = d3.scaleTime()
-                     .domain(d3.extent(dataSet, (d) => new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1])))
-                     .range([padding, h - padding]);
+    const yScale = d3.scaleBand()
+                     .domain(dataSet.map((d) => d.month))
+                     .rangeRound([padding, h - padding]);
 
-    
-    d3.select("#chart-area")
-        .append("h2")
-        .attr("id", "label")
-        .text("Time in minutes")
-
-   const tooltip = d3.select("#chart-area")
-        .append("tooltip")
-        .attr("id", "tooltip")
 
    const legend = d3.select("#chart-area")
-        .append("div")
+        .append("svg")
         .attr("id", "legend")
-   
-   const legendRow1 = legend.append("div").attr("id", "legend-row1")
-   
-   legendRow1.append("p")
-   .text("No doping allegations")
+        .attr("width", "500")
+        .attr("height", "60")
 
-   const firstsvg = legendRow1.append("svg")
-               .attr("witdh", "30")
-               .attr("height", "30")
+        const temps = Array.from({length: d3.max(dataSet, (d) => d.variance + dataAll.baseTemperature) - d3.min(dataSet, (d) => d.variance + dataAll.baseTemperature) + 1}, (v,k) => k+1)
 
-   const legendRow2 = legend.append("div").attr("id", "legend-row2")
+        const legendxScale = d3.scaleLinear()
+        .domain([d3.min(temps), d3.max(temps) + 1])
+        .range([30, 470])
 
-   legendRow2.append("p")
-   .text("Riders with doping allegations")
+   const colors = [ '#011d3c','#053061','#2166ac','#4393c3','#92c5de','#d1e5f0','#f7f7f7','#fddbc7','#f4a582','#d6604d', '#b2182b','#67001f','#3f040c']
 
-   const secondsvg = legendRow2.append("svg")
-               .attr("witdh", "30")
-               .attr("height", "30")
+   legend.selectAll("rect")
+      .data(temps)
+      .enter()
+      .append("rect")
+      .attr("x", (d) => legendxScale(d))
+      .attr("y", 0)
+      .attr("width", 470/temps.length)
+      .attr("height", 30)
+      .attr("fill",  (d, i) => colors[i])
+      
+      const legendxAxis = d3.axisBottom(legendxScale)
+      .tickFormat(d3.format('.1f'))
 
-   firstsvg.append("rect")
-   .attr("x", 10)
-   .attr("width", 30)
-   .attr("height", 30)
-   .attr("fill",  "#39b4f3")
-   .style("opacity", "0.8")
-
-   secondsvg.append("rect")
-   .attr("x", 10)
-   .attr("width", 30)
-   .attr("height", 30)
-   .attr("fill", "#625ed7")
-   .style("opacity", "0.8")
+    legend.append("g")
+       .attr("transform", "translate(0,30)")
+       .attr("id", "legendx-axis")
+       .attr("color", "#474862")
+       .style("font-family", "Amiri Quran, serif")
+       .style("font-size", "0.8rem")
+       .call(legendxAxis)
         
+   
+          const tooltip = d3.select("#chart-area")
+       .append("tooltip")
+       .attr("id", "tooltip")
+
 
    const svg = d3.select("#chart-area")
                   .append("svg")
@@ -75,38 +75,46 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
                   .attr("height", h)
                   .style("margin-left", "3rem")
    
-      svg.selectAll("circle")
+      svg.selectAll("rect")
          .data(dataSet)
          .enter()
-         .append("circle")
-         .attr("data-xvalue", (d) => d.Year)
-         .attr("data-yvalue", (d) => new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1]))
-         .attr("class", "dot")
-         .attr("cx", (d) => xScale(new Date(d.Year, 0)))
-         .attr("cy",(d) => yScale(new Date(1970, 0, 1, 0, d.Time.split(":")[0], d.Time.split(":")[1])))
-         .attr("r", "7")
+         .append("rect")
+         .attr("data-year", (d) => d.year)
+         .attr("data-month", (d) => d.month -1)
+         .attr("data-temp", (d) =>  dataAll.baseTemperature + d.variance)
+         .attr("class", "cell")
+         .attr("x", (d) => xScale(d.year))
+         .attr("y",(d) => yScale(d.month))
+         .attr("width", (d) => xScale.bandwidth(d.year))
+         .attr("height", (d) => yScale.bandwidth(d.month))
          .attr("index", (d, i) => i)
-         .attr("fill", (d) => d.Doping ? "#625ed7" : "#39b4f3")
-         .style("opacity", "0.8")
-         .style("stroke", "white")
+         .attr("fill", (d) => colors[Math.floor(d.variance + dataAll.baseTemperature)])
          .on("mouseover", function () {
             let i = this.getAttribute("index")
-            tooltip.attr("data-year", dataSet[i].Year)
+            tooltip.attr("data-year", dataSet[i].year)
          .style("opacity", "0.8")
-         .html(dataSet[i].Name + ": " + dataSet[i].Nationality + '<br>' + "Year: " + dataSet[i].Year + ", " + "Time: " + dataSet[i].Time + (dataSet[i].Doping ? '<br><br>' + dataSet[i].Doping: ""))
-         .style("left", this.getAttribute("cx") + "px")
-         .style("top", this.getAttribute("cy") + "px")
-         .style("margin-left", "8rem")
+         .html(dataSet[i].year + " - " + (new Date(dataSet[i].year, dataSet[i].month -1).toLocaleString('en-US', { month: 'long' })) + '<br>' + (dataSet[i].variance + dataAll.baseTemperature).toFixed(2) + "ºC" + "<br>" + dataSet[i].variance.toFixed(2) + "ºC")
+         .style("left", this.getAttribute("x") + "px")
+         .style("top", this.getAttribute("y") + "px")
+         .style("margin-left", "4rem")
          
       
          })
          .on("mouseout", function () {
             tooltip.style("opacity", "0")            
          })
+
          
          
          
-   const xAxis = d3.axisBottom(xScale);
+   const xAxis = d3.axisBottom(xScale)
+      .tickValues(
+         xScale.domain().filter(function (year) {
+         // set ticks to years divisible by 10
+            return year % 10 === 0;
+         }))      
+   
+   
    
 
     svg.append("g")
@@ -115,10 +123,16 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
        .attr("color", "#474862")
        .style("font-family", "Amiri Quran, serif")
        .style("font-size", "0.8rem")
-       .call(xAxis);
+       .call(xAxis)
 
 
-   const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat('%M:%S'));
+   const yAxis = d3.axisLeft(yScale).tickValues(yScale.domain())
+   .tickFormat(function (month) {
+     let date = new Date(0);
+     date.setUTCMonth(month);
+     let format = d3.timeFormat('%B');
+     return format(date);
+   })
    
 
     svg.append("g")
@@ -127,5 +141,6 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
        .attr("color", "#474862")
        .style("font-family", "Amiri Quran, serif")
        .style("font-size", "0.8rem")
-       .call(yAxis);
+       .call(yAxis)
+
   })

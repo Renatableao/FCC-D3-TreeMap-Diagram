@@ -13,8 +13,8 @@ body {
 }
 
 #chart-area {
-    width: 85rem;
-    height: 43rem;
+    width: 93rem;
+    height: 46rem;
     background-color: #e5e7ed;
     position: absolute;
     left: 0;
@@ -35,9 +35,19 @@ body {
     left: 50%;
     top: 0.5rem;
     transform: translate(-50%);
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #474862;
 }
+
+#description {
+    position: absolute;
+    left: 50%;
+    top: 4rem;
+    transform: translate(-50%);
+    color: #474862;
+    font-size: 1rem;
+}
+
 
 .bar:hover {
     fill: #625ed7;
@@ -52,14 +62,14 @@ body {
     font-size: 1.3rem;
     font-weight: 100;
     color: #474862;
+    color: #011d3c
 
 }
 
 #legend {
     display: flex;
-    flex-direction: column;
     position: absolute;
-    right: -8rem;
+    bottom: 1rem;
 }
 
 #legend-row1, #legend-row2 {
@@ -68,14 +78,17 @@ body {
     justify-content: right;
 }
 
+.cell:hover {
+    stroke: #474862;
+}
 
 #tooltip {
     display: flex;
     justify-content: center;
     position: absolute;
     padding: 0 1rem 1rem 1rem;
-    text-align: left;
-    background: #625ed7;
+    text-align: center;
+    background: #474862;
     font-size: 1rem;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     border-radius: 2px;
