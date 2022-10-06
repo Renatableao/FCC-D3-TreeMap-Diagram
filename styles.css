@@ -48,38 +48,18 @@ body {
     font-size: 1rem;
 }
 
-
-.bar:hover {
-    fill: #625ed7;
-
-}
-
-#label {
-    position: absolute;
-    transform: rotate(270deg);
-    left: 3rem;
-    top: 13rem;
-    font-size: 1.3rem;
-    font-weight: 100;
-    color: #474862;
-    color: #011d3c
-
-}
-
 #legend {
     display: flex;
     position: absolute;
     bottom: 1rem;
 }
 
-#legend-row1, #legend-row2 {
-    display: flex;
-    align-items:flex-end;
-    justify-content: right;
-}
-
 .cell:hover {
     stroke: #474862;
+}
+
+.node-label {
+    font-size: 0.7rem;
 }
 
 #tooltip {
@@ -89,7 +69,7 @@ body {
     padding: 0 1rem 1rem 1rem;
     text-align: center;
     background: #474862;
-    font-size: 1rem;
+    font-size: 1.2rem;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     border-radius: 2px;
     pointer-events: none;
